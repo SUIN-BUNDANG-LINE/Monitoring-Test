@@ -6,7 +6,7 @@ import {
   uuidv4,
 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 
-// 성능 측정을 위한 트렌드 메트릭 정의
+// 각 API별 응답 시간을 저장하는 Trend 메트릭 선언문
 const surveyRequestDuration = new Trend("survey_details_duration");
 const progressRequestDuration = new Trend("survey_progress_duration");
 const responseRequestDuration = new Trend("survey_response_duration");
@@ -18,19 +18,19 @@ const surveyParticipantListDuration = new Trend(
 
 export const options = {
   scenarios: {
-    // 비 피크 시간대
+    // 비 피크 시간대 - 5분 동안 시나리오 60회 수행
     off_peak_load: {
       executor: "constant-arrival-rate",
-      rate: 10,
+      rate: 12,
       duration: "5m",
       timeUnit: "1m",
       preAllocatedVUs: 2,
       maxVUs: 10,
     },
-    // 피크 시간대
+    // 피크 시간대 - 5분 동안 시나리오 300회 수행
     peak_load: {
       executor: "constant-arrival-rate",
-      rate: 50,
+      rate: 60,
       duration: "5m",
       timeUnit: "1m",
       startTime: "5m",
@@ -39,6 +39,8 @@ export const options = {
     },
   },
   thresholds: {
+    // 각 API의 평균 응답 시간이 목표치에 달성했는지 체크
+    // 달성 실패 시 테스트 결과에 표시
     survey_details_duration: ["avg<200"], // 설문 상세 조회 평균 응답 시간 200ms 미만
     survey_progress_duration: ["avg<200"], // 설문 진행 정보 조회 평균 응답 시간 200ms 미만
     survey_response_duration: ["avg<400"], // 설문 응답 평균 응답 시간 400ms 미만
@@ -48,10 +50,13 @@ export const options = {
   },
 };
 
+// 서버 URL, 아래와 같은 형태로 실행 명령어에 넣어 유동적으로 변경 가능
+// --env BASE_URL = http://localhost:8080
 const baseURL = __ENV.BASE_URL || "http://localhost:8080";
+// 테스트 대상 선정을 위한 설문 목록 API End Point
 const surveyListAPI = `${baseURL}/api/v1/surveys/list?size=5000`;
 
-// 무작위 응답 생성 함수
+// 설문의 섹션에 맞는 무작위 응답을 생성하는 함수
 function generateRandomResponse(section) {
   return section.questions
     .map((question) => {
@@ -136,6 +141,7 @@ function generateQuestionFilters(responseBody) {
   return questionFilters;
 }
 
+// 테스트 시작 전에 설문 목록 API로 설문의 ID들을 가져와서 저장
 export function setup() {
   // 설문 목록 가져오기
   let res = http.get(surveyListAPI);
