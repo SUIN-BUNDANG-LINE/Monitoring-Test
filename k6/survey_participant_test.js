@@ -18,24 +18,35 @@ const surveyParticipantListDuration = new Trend(
 
 export const options = {
   scenarios: {
-    // 비 피크 시간대 - 5분 동안 시나리오 60회 수행
-    off_peak_load: {
+    // 피크 시간대 1 - 5분 동안 시나리오 50회 수행
+    peak_load_1: {
       executor: "constant-arrival-rate",
-      rate: 12,
+      rate: 10,
       duration: "5m",
       timeUnit: "1m",
       preAllocatedVUs: 2,
       maxVUs: 10,
     },
-    // 피크 시간대 - 5분 동안 시나리오 300회 수행
-    peak_load: {
+    // 최고 피크 시간대 - 5분 동안 시나리오 50회 수행
+    // 피크 시간대 중 갑작스럽게 요청이 몰리는 상황을 가정
+    high_peak_load: {
       executor: "constant-arrival-rate",
-      rate: 60,
+      rate: 50,
       duration: "5m",
       timeUnit: "1m",
       startTime: "5m",
       preAllocatedVUs: 10,
-      maxVUs: 40,
+      maxVUs: 50,
+    },
+    // 피크 시간대 2 - 5분 동안 시나리오 50회 수행
+    peak_load_2: {
+      executor: "constant-arrival-rate",
+      rate: 10,
+      duration: "5m",
+      timeUnit: "1m",
+      startTime: "10m",
+      preAllocatedVUs: 2,
+      maxVUs: 10,
     },
   },
   thresholds: {
