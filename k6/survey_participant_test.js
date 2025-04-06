@@ -18,7 +18,7 @@ const surveyParticipantListDuration = new Trend(
 
 export const options = {
   scenarios: {
-    // 피크 시간대 1 - 5분 동안 시나리오 50회 수행
+    // warm up - 5분 동안 시나리오 50회 수행
     peak_load_1: {
       executor: "constant-arrival-rate",
       rate: 10,
@@ -27,7 +27,7 @@ export const options = {
       preAllocatedVUs: 2,
       maxVUs: 10,
     },
-    // 최고 피크 시간대 - 5분 동안 시나리오 50회 수행
+    // 최고 피크 시간대 - 5분 동안 시나리오 250회 수행
     // 피크 시간대 중 갑작스럽게 요청이 몰리는 상황을 가정
     high_peak_load: {
       executor: "constant-arrival-rate",
@@ -38,7 +38,7 @@ export const options = {
       preAllocatedVUs: 10,
       maxVUs: 50,
     },
-    // 피크 시간대 2 - 5분 동안 시나리오 50회 수행
+    // cool down - 5분 동안 시나리오 50회 수행
     peak_load_2: {
       executor: "constant-arrival-rate",
       rate: 10,
